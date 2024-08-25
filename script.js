@@ -58,6 +58,14 @@ function updateEnvironment() {
     const environmentSelect = document.getElementById('environment-select');
     selectedEnvironment = environmentSelect.value;
     document.getElementById('environment').innerText = `Environment: ${selectedEnvironment}`;
+
+    if (selectedEnvironment === 'Water') {
+        document.getElementById('water-analysis').style.display = 'block';
+        startGyroscope();
+    } else {
+        document.getElementById('water-analysis').style.display = 'none';
+        stopGyroscope();
+    }
 }
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -75,6 +83,45 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
 
 function deg2rad(deg) {
     return deg * (Math.PI / 180);
+}
+
+let gyroscopeInterval;
+
+function startGyroscope() {
+    if (window.DeviceOrientationEvent) {
+        gyroscopeInterval = setInterval(() => {
+            window.addEventListener('deviceorientation', handleGyroscope);
+        }, 100);
+    } else {
+        alert("DeviceOrientationEvent is not supported on your device.");
+    }
+}
+
+function stopGyroscope() {
+    clearInterval(gyroscopeInterval);
+    window.removeEventListener('deviceorientation', handleGyroscope);
+}
+
+function handleGyroscope(event) {
+    const gamma = event.gamma; // Left to right tilt
+    const beta = event.beta;   // Front to back tilt
+
+    const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
+    const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
+
+    const cgVisualization = document.getElementById('cg-visualization');
+    let cgPoint = cgVisualization.querySelector('.cg-point');
+
+    if (!cgPoint) {
+        cgPoint = document.createElement('div');
+        cgPoint.className = 'cg-point';
+        cgVisualization.appendChild(cgPoint);
+    }
+
+    cgPoint.style.left = `${cgPositionX}%`;
+    cgPoint.style.top = `${cgPositionY}%`;
+
+    document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
 }
 
 if (navigator.geolocation) {

@@ -60,7 +60,9 @@ function deg2rad(deg) {
 
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(calculateSpeed, showError, {
-        enableHighAccuracy: true
+        enableHighAccuracy: true,
+        maximumAge: 100,   // Update every 0.1 seconds
+        timeout: 100       // Wait no longer than 0.1 seconds for a response
     });
 } else {
     alert('Geolocation is not supported by this browser.');

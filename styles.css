@@ -14,8 +14,6 @@ body {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    width: 100%;
 }
 
 h1, h2 {
@@ -28,42 +26,18 @@ p {
     margin: 10px 0;
 }
 
-label {
+label, select {
     font-size: 18px;
     margin: 10px 0;
 }
 
-select {
-    font-size: 18px;
-    margin: 10px 0;
-    padding: 5px;
-}
-
-#speed, #altitude, #highest-speed, #cg-position, #heading, #heading-air {
-    font-size: 18px;
-    color: #333;
-    margin: 10px 0;
-}
-
-#environment {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 20px 0;
-}
-
-#water-analysis, #air-analysis {
-    display: none;
-    margin-top: 20px;
-}
-
-.cg-visualization {
+#cg-visualization {
     width: 200px;
     height: 200px;
     margin: 20px auto;
     background-color: #e0e0e0;
     position: relative;
-    border: 1px solid #ccc;
-    border-radius: 50%;
+    border: 2px solid #333;
 }
 
 .cg-point {
@@ -73,18 +47,4 @@ select {
     border-radius: 50%;
     position: absolute;
     transform: translate(-50%, -50%);
-}
-
-#heading, #heading-air {
-    font-size: 18px;
-    color: #333;
-    margin: 10px 0;
-}
-
-#heading {
-    display: none;
-}
-
-#heading-air {
-    display: none;
 }

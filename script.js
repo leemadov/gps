@@ -3,7 +3,6 @@ let previousTime = null;
 let highestSpeed = 0;
 let selectedEnvironment = 'Ground';
 let speedReadings = [];
-let compassHeading = 0;
 
 function calculateSpeed(position) {
     const currentPosition = {
@@ -64,17 +63,14 @@ function updateEnvironment() {
         document.getElementById('water-analysis').style.display = 'block';
         document.getElementById('air-analysis').style.display = 'none';
         startGyroscope();
-        startCompass();
     } else if (selectedEnvironment === 'Air') {
         document.getElementById('water-analysis').style.display = 'none';
         document.getElementById('air-analysis').style.display = 'block';
         startGyroscope();
-        startCompass();
     } else {
         document.getElementById('water-analysis').style.display = 'none';
         document.getElementById('air-analysis').style.display = 'none';
         stopGyroscope();
-        stopCompass();
     }
 }
 
@@ -96,7 +92,6 @@ function deg2rad(deg) {
 }
 
 let gyroscopeInterval;
-let compassInterval;
 
 function startGyroscope() {
     if (window.DeviceOrientationEvent) {
@@ -116,6 +111,7 @@ function stopGyroscope() {
 function handleGyroscope(event) {
     const gamma = event.gamma; // Left to right tilt
     const beta = event.beta;   // Front to back tilt
+    const alpha = event.alpha; // Compass heading
 
     const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
     const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
@@ -133,53 +129,15 @@ function handleGyroscope(event) {
     cgPoint.style.top = `${cgPositionY}%`;
 
     document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
-}
 
-function startCompass() {
-    if (window.DeviceOrientationEvent) {
-        compassInterval = setInterval(() => {
-            window.addEventListener('deviceorientation', handleCompass);
-        }, 100);
-    } else {
-        alert("DeviceOrientationEvent is not supported on your device.");
+    if (selectedEnvironment === 'Water') {
+        document.getElementById('heading').innerText = `Heading: ${alpha.toFixed(2)}°`;
+    } else if (selectedEnvironment === 'Air') {
+        document.getElementById('heading-air').innerText = `Heading: ${alpha.toFixed(2)}°`;
     }
-}
-
-function stopCompass() {
-    clearInterval(compassInterval);
-    window.removeEventListener('deviceorientation', handleCompass);
-}
-
-function handleCompass(event) {
-    const alpha = event.alpha; // Compass heading
-
-    compassHeading = alpha;
-    document.getElementById('heading').innerText = `Heading: ${compassHeading.toFixed(2)}°`;
 }
 
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(calculateSpeed, showError, {
         enableHighAccuracy: true,
-        maximumAge: 100,   // Update every 0.1 seconds
-        timeout: 100       // Wait no longer than 0.1 seconds for a response
-    });
-} else {
-    alert('Geolocation is not supported by this browser.');
-}
-
-function showError(error) {
-    switch (error.code) {
-        case error.PERMISSION_DENIED:
-            alert("User denied the request for Geolocation.");
-            break;
-        case error.POSITION_UNAVAILABLE:
-            alert("Location information is unavailable.");
-            break;
-        case error.TIMEOUT:
-            alert("The request to get user location timed out.");
-            break;
-        case error.UNKNOWN_ERROR:
-            alert("An unknown error occurred.");
-            break;
-    }
-}
+        maximumAge: 100,   // Update

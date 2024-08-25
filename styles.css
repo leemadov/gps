@@ -33,10 +33,14 @@ label, select {
 
 #cg-visualization {
     width: 200px;
-    height: 200px;
+    height: 100px;
     margin: 20px auto;
-    background-color: #e0e0e0;
     position: relative;
+    background-color: #87ceeb; /* Sky blue background to simulate water */
+    border-radius: 50% / 100px; /* Elliptical shape for the boat */
+    border-bottom: 30px solid brown; /* Hull of the boat */
+    border-top: 20px solid white; /* Sail area */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
 }
 
 .cg-point {
@@ -48,4 +52,26 @@ label, select {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Make the CG point more noticeable */
+}
+
+#mast {
+    width: 2px;
+    height: 50px;
+    background-color: gray;
+    position: absolute;
+    left: 50%;
+    top: -20px;
+    transform: translateX(-50%);
+}
+
+#sail {
+    width: 0;
+    height: 0;
+    border-left: 25px solid white;
+    border-top: 50px solid transparent;
+    position: absolute;
+    left: 50%;
+    top: -50px;
+    transform: translateX(-25%);
 }

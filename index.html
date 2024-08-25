@@ -3,42 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed and Environment Analysis</title>
+    <title>Advanced Speedometer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Speed and Environment Analysis</h1>
+        <h1>Advanced Speedometer</h1>
+        <p id="speed">Speed: 0 km/h</p>
+        <p id="altitude">Altitude: 0 m</p>
+        <p id="highest-speed">Highest Speed: 0 km/h</p>
         
-        <h2>Speed: <span id="speed">0</span> km/h</h2>
-        <h2>Altitude: <span id="altitude">N/A</span> meters</h2>
-
-        <label for="environment">Select Environment:</label>
-        <select id="environment">
-            <option value="ground">Ground</option>
-            <option value="air">Air</option>
-            <option value="water">Water</option>
+        <label for="environment-select">Select Environment:</label>
+        <select id="environment-select" onchange="updateEnvironment()">
+            <option value="Ground">Ground</option>
+            <option value="Air">Air</option>
+            <option value="Water">Water</option>
         </select>
 
-        <div id="ground-analysis" style="display: none;">
-            <h2>Ground Analysis</h2>
-            <p>Details about ground analysis will be here.</p>
-        </div>
+        <p id="environment">Environment: Ground</p>
 
-        <div id="air-analysis" style="display: none;">
-            <h2>Air Analysis</h2>
-            <p>Details about air analysis will be here.</p>
-        </div>
-
-        <div id="water-analysis" style="display: none;">
-            <h2>Water Analysis</h2>
+        <!-- Additional section for air and water analysis -->
+        <div id="environment-analysis" style="display: none;">
+            <h2>Analysis</h2>
+            <p id="heading">Heading: N/A</p>
             <p id="cg-position">CG Position: N/A</p>
-            <div id="cg-visualization" class="cg-visualization">
-                <!-- Mast and Sail -->
-                <div id="mast"></div>
-                <div id="sail"></div>
-                <!-- CG Point -->
-                <div class="cg-point"></div>
-            </div>
+            <div id="cg-visualization" class="cg-visualization"></div>
         </div>
     </div>
+    <script src="script.js"></script>
+</body>
+</html>

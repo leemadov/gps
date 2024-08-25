@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Speedometer</title>
+    <title>Speed and Environment Analysis</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Advanced Speedometer</h1>
-        <p id="speed">Speed: 0 km/h</p>
-        <p id="altitude">Altitude: 0 m</p>
-        <p id="highest-speed">Highest Speed: 0 km/h</p>
+        <h1>Speed and Environment Analysis</h1>
         
-        <label for="environment-select">Select Environment:</label>
-        <select id="environment-select" onchange="updateEnvironment()">
-            <option value="Ground">Ground</option>
-            <option value="Air">Air</option>
-            <option value="Water">Water</option>
+        <h2>Speed: <span id="speed">0</span> km/h</h2>
+        <h2>Altitude: <span id="altitude">N/A</span> meters</h2>
+
+        <label for="environment">Select Environment:</label>
+        <select id="environment">
+            <option value="ground">Ground</option>
+            <option value="air">Air</option>
+            <option value="water">Water</option>
         </select>
 
-        <p id="environment">Environment: Ground</p>
+        <div id="ground-analysis" style="display: none;">
+            <h2>Ground Analysis</h2>
+            <p>Details about ground analysis will be here.</p>
+        </div>
 
-        <!-- Additional section for water-related analysis -->
+        <div id="air-analysis" style="display: none;">
+            <h2>Air Analysis</h2>
+            <p>Details about air analysis will be here.</p>
+        </div>
+
         <div id="water-analysis" style="display: none;">
             <h2>Water Analysis</h2>
             <p id="cg-position">CG Position: N/A</p>
-            <div id="cg-visualization" class="cg-visualization"></div>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+            <div id="cg-visualization" class="cg-visualization">
+                <!-- Mast and Sail -->
+                <div id="mast"></div>
+                <div id="s

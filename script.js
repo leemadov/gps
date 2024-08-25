@@ -1,66 +1,152 @@
-        const speedElement = document.getElementById('speed');
-        const altitudeElement = document.getElementById('altitude');
-        const environmentSelect = document.getElementById('environment');
-        const groundAnalysis = document.getElementById('ground-analysis');
-        const airAnalysis = document.getElementById('air-analysis');
-        const waterAnalysis = document.getElementById('water-analysis');
+let previousPosition = null;
+let previousTime = null;
+let highestSpeed = 0;
+let selectedEnvironment = 'Ground';
+let speedReadings = [];
+let gyroscopeInterval;
 
-        let speed = 0;
-        let altitude = 0;
+function calculateSpeed(position) {
+    const currentPosition = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        altitude: position.coords.altitude || 0,
+        time: new Date().getTime()
+    };
 
-        // Function to update speed and altitude
-        function updateSpeedAndAltitude() {
-            speed += Math.random() * 0.5; // Simulate speed change
-            altitude += Math.random() * 0.2; // Simulate altitude change
+    if (previousPosition) {
+        const distance = getDistanceFromLatLonInKm(
+            previousPosition.latitude,
+            previousPosition.longitude,
+            currentPosition.latitude,
+            currentPosition.longitude
+        );
 
-            speedElement.innerText = speed.toFixed(2);
-            altitudeElement.innerText = altitude.toFixed(2);
-        }
+        const timeElapsed = (currentPosition.time - previousTime) / 1000; // seconds
 
-        // Function to handle environment change
-        function handleEnvironmentChange() {
-            const environment = environmentSelect.value;
+        if (distance > 0.001) { // Ignore very small movements
+            const speed = (distance / timeElapsed) * 3600; // km/h
 
-            groundAnalysis.style.display = 'none';
-            airAnalysis.style.display = 'none';
-            waterAnalysis.style.display = 'none';
-
-            if (environment === 'ground') {
-                groundAnalysis.style.display = 'block';
-            } else if (environment === 'air') {
-                airAnalysis.style.display = 'block';
-            } else if (environment === 'water') {
-                waterAnalysis.style.display = 'block';
+            // Add speed to readings array for averaging
+            speedReadings.push(speed);
+            if (speedReadings.length > 5) {
+                speedReadings.shift(); // Keep only the last 5 readings
             }
-        }
 
-        // Function to handle gyroscope data
-        function handleGyroscope(event) {
-            const gamma = event.gamma; // Left to right tilt
-            const beta = event.beta;   // Front to back tilt
+            const averageSpeed = speedReadings.reduce((a, b) => a + b, 0) / speedReadings.length;
 
-            const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
-            const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
+            document.getElementById('speed').innerText = `Speed: ${averageSpeed.toFixed(2)} km/h`;
 
-            const cgVisualization = document.getElementById('cg-visualization');
-            let cgPoint = cgVisualization.querySelector('.cg-point');
-
-            cgPoint.style.left = `${cgPositionX}%`;
-            cgPoint.style.top = `${cgPositionY}%`;
-
-            document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
-        }
-
-        // Event listeners
-        environmentSelect.addEventListener('change', handleEnvironmentChange);
-        window.addEventListener('devicemotion', (event) => {
-            if (environmentSelect.value === 'water') {
-                handleGyroscope(event);
+            // Update highest speed
+            if (averageSpeed > highestSpeed) {
+                highestSpeed = averageSpeed;
+                document.getElementById('highest-speed').innerText = `Highest Speed: ${highestSpeed.toFixed(2)} km/h`;
             }
-        });
 
-        // Update speed and altitude every 0.1 seconds
-        setInterval(updateSpeedAndAltitude, 100);
+            // Display altitude
+            const altitude = currentPosition.altitude;
+            document.getElementById('altitude').innerText = `Altitude: ${altitude.toFixed(2)} m`;
 
-        // Initial environment setup
-        handleEnvironmentChange();
+            // Display selected environment
+            document.getElementById('environment').innerText = `Environment: ${selectedEnvironment}`;
+        }
+    }
+
+    previousPosition = currentPosition;
+    previousTime = currentPosition.time;
+}
+
+function updateEnvironment() {
+    const environmentSelect = document.getElementById('environment-select');
+    selectedEnvironment = environmentSelect.value;
+    document.getElementById('environment').innerText = `Environment: ${selectedEnvironment}`;
+
+    if (selectedEnvironment === 'Water' || selectedEnvironment === 'Air') {
+        document.getElementById('environment-analysis').style.display = 'block';
+        startGyroscope();
+    } else {
+        document.getElementById('environment-analysis').style.display = 'none';
+        stopGyroscope();
+    }
+}
+
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in km
+    return distance;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}
+
+function startGyroscope() {
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', handleGyroscope);
+    } else {
+        alert("DeviceOrientationEvent is not supported on your device.");
+    }
+}
+
+function stopGyroscope() {
+    window.removeEventListener('deviceorientation', handleGyroscope);
+}
+
+function handleGyroscope(event) {
+    const gamma = event.gamma; // Left to right tilt
+    const beta = event.beta;   // Front to back tilt
+    const alpha = event.alpha; // Rotation around the Z axis
+
+    const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
+    const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
+
+    const heading = alpha; // Device orientation in degrees
+
+    const cgVisualization = document.getElementById('cg-visualization');
+    let cgPoint = cgVisualization.querySelector('.cg-point');
+
+    if (!cgPoint) {
+        cgPoint = document.createElement('div');
+        cgPoint.className = 'cg-point';
+        cgVisualization.appendChild(cgPoint);
+    }
+
+    cgPoint.style.left = `${cgPositionX}%`;
+    cgPoint.style.top = `${cgPositionY}%`;
+
+    document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
+    document.getElementById('heading').innerText = `Heading: ${heading.toFixed(2)}°`;
+}
+
+if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(calculateSpeed, showError, {
+        enableHighAccuracy: true,
+        maximumAge: 100,   // Update every 0.1 seconds
+        timeout: 100       // Wait no longer than 0.1 seconds for a response
+    });
+} else {
+    alert('Geolocation is not supported by this browser.');
+}
+
+function showError(error) {
+    switch (error.code) {
+        case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+        case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+        case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+        case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+    }
+}

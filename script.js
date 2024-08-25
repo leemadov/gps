@@ -176,4 +176,10 @@ function showError(error) {
             alert("Location information is unavailable.");
             break;
         case error.TIMEOUT:
-            alert("
+            alert("The request to get user location timed out.");
+            break;
+        case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+    }
+}

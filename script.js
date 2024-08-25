@@ -3,7 +3,7 @@ let previousTime = null;
 let highestSpeed = 0;
 let selectedEnvironment = 'Ground';
 let speedReadings = [];
-let gyroscopeInterval;
+let compassHeading = 0;
 
 function calculateSpeed(position) {
     const currentPosition = {
@@ -60,12 +60,21 @@ function updateEnvironment() {
     selectedEnvironment = environmentSelect.value;
     document.getElementById('environment').innerText = `Environment: ${selectedEnvironment}`;
 
-    if (selectedEnvironment === 'Water' || selectedEnvironment === 'Air') {
-        document.getElementById('environment-analysis').style.display = 'block';
+    if (selectedEnvironment === 'Water') {
+        document.getElementById('water-analysis').style.display = 'block';
+        document.getElementById('air-analysis').style.display = 'none';
         startGyroscope();
+        startCompass();
+    } else if (selectedEnvironment === 'Air') {
+        document.getElementById('water-analysis').style.display = 'none';
+        document.getElementById('air-analysis').style.display = 'block';
+        startGyroscope();
+        startCompass();
     } else {
-        document.getElementById('environment-analysis').style.display = 'none';
+        document.getElementById('water-analysis').style.display = 'none';
+        document.getElementById('air-analysis').style.display = 'none';
         stopGyroscope();
+        stopCompass();
     }
 }
 
@@ -86,27 +95,30 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
 
+let gyroscopeInterval;
+let compassInterval;
+
 function startGyroscope() {
     if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleGyroscope);
+        gyroscopeInterval = setInterval(() => {
+            window.addEventListener('deviceorientation', handleGyroscope);
+        }, 100);
     } else {
         alert("DeviceOrientationEvent is not supported on your device.");
     }
 }
 
 function stopGyroscope() {
+    clearInterval(gyroscopeInterval);
     window.removeEventListener('deviceorientation', handleGyroscope);
 }
 
 function handleGyroscope(event) {
     const gamma = event.gamma; // Left to right tilt
     const beta = event.beta;   // Front to back tilt
-    const alpha = event.alpha; // Rotation around the Z axis
 
     const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
     const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
-
-    const heading = alpha; // Device orientation in degrees
 
     const cgVisualization = document.getElementById('cg-visualization');
     let cgPoint = cgVisualization.querySelector('.cg-point');
@@ -121,7 +133,28 @@ function handleGyroscope(event) {
     cgPoint.style.top = `${cgPositionY}%`;
 
     document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
-    document.getElementById('heading').innerText = `Heading: ${heading.toFixed(2)}°`;
+}
+
+function startCompass() {
+    if (window.DeviceOrientationEvent) {
+        compassInterval = setInterval(() => {
+            window.addEventListener('deviceorientation', handleCompass);
+        }, 100);
+    } else {
+        alert("DeviceOrientationEvent is not supported on your device.");
+    }
+}
+
+function stopCompass() {
+    clearInterval(compassInterval);
+    window.removeEventListener('deviceorientation', handleCompass);
+}
+
+function handleCompass(event) {
+    const alpha = event.alpha; // Compass heading
+
+    compassHeading = alpha;
+    document.getElementById('heading').innerText = `Heading: ${compassHeading.toFixed(2)}°`;
 }
 
 if (navigator.geolocation) {
@@ -143,10 +176,4 @@ function showError(error) {
             alert("Location information is unavailable.");
             break;
         case error.TIMEOUT:
-            alert("The request to get user location timed out.");
-            break;
-        case error.UNKNOWN_ERROR:
-            alert("An unknown error occurred.");
-            break;
-    }
-}
+            alert("

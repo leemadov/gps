@@ -14,6 +14,8 @@ body {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
 }
 
 h1, h2 {
@@ -37,6 +39,7 @@ label, select {
     margin: 20px auto;
     background-color: #e0e0e0;
     position: relative;
+    border-radius: 50%;
 }
 
 .cg-point {
@@ -48,4 +51,43 @@ label, select {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+#heading {
+    font-size: 18px;
+    color: #333;
+    margin: 10px 0;
+}
+
+#water-analysis, #air-analysis {
+    display: none;
+}
+
+#water-analysis {
+    background-color: #d0f0fd; /* Light blue background for water analysis */
+    border: 1px solid #a0d0f0;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+#air-analysis {
+    background-color: #f0f0f0; /* Neutral background for air analysis */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+select {
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.container h1 {
+    color: #005a9c; /* Dark blue for title */
+}
+
+.container p {
+    color: #333; /* Dark gray text color */
 }

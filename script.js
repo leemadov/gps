@@ -89,13 +89,16 @@ let gyroscopeInterval;
 
 function startGyroscope() {
     if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleGyroscope);
+        gyroscopeInterval = setInterval(() => {
+            window.addEventListener('deviceorientation', handleGyroscope);
+        }, 100);
     } else {
         alert("DeviceOrientationEvent is not supported on your device.");
     }
 }
 
 function stopGyroscope() {
+    clearInterval(gyroscopeInterval);
     window.removeEventListener('deviceorientation', handleGyroscope);
 }
 
@@ -104,7 +107,7 @@ function handleGyroscope(event) {
     const beta = event.beta;   // Front to back tilt
 
     const cgPositionX = 50 + (gamma / 90) * 50; // Normalized CG position X (0% to 100%)
-    const cgPositionY = 50 - (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
+    const cgPositionY = 50 + (beta / 90) * 50;  // Normalized CG position Y (0% to 100%)
 
     const cgVisualization = document.getElementById('cg-visualization');
     let cgPoint = cgVisualization.querySelector('.cg-point');
@@ -115,8 +118,8 @@ function handleGyroscope(event) {
         cgVisualization.appendChild(cgPoint);
     }
 
-    cgPoint.style.left = `${Math.max(0, Math.min(cgPositionX, 100))}%`;
-    cgPoint.style.top = `${Math.max(0, Math.min(cgPositionY, 100))}%`;
+    cgPoint.style.left = `${cgPositionX}%`;
+    cgPoint.style.top = `${cgPositionY}%`;
 
     document.getElementById('cg-position').innerText = `CG Position: X = ${cgPositionX.toFixed(2)}%, Y = ${cgPositionY.toFixed(2)}%`;
 }

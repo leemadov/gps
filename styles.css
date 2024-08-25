@@ -16,7 +16,7 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+h1, h2 {
     margin-bottom: 20px;
 }
 
@@ -29,4 +29,23 @@ p {
 label, select {
     font-size: 18px;
     margin: 10px 0;
+}
+
+#cg-visualization {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    background-color: #e0e0e0;
+    position: relative;
+}
+
+.cg-point {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
